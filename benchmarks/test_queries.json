@@ -1,0 +1,33 @@
+{
+  "simple": [
+    {"query": "What is Python?", "expected": "simple"},
+    {"query": "Convert 100 USD to EUR", "expected": "simple"},
+    {"query": "What's 15% of 230?", "expected": "simple"},
+    {"query": "What is the capital of France?", "expected": "simple"},
+    {"query": "How many days are in a year?", "expected": "simple"},
+    {"query": "What color is the sky?", "expected": "simple"},
+    {"query": "Who wrote Romeo and Juliet?", "expected": "simple"},
+    {"query": "What is 2 + 2?", "expected": "simple"},
+    {"query": "Define machine learning", "expected": "simple"},
+    {"query": "What year did World War 2 end?", "expected": "simple"}
+  ],
+  "medium": [
+    {"query": "Explain the difference between REST and GraphQL APIs", "expected": "medium"},
+    {"query": "Write a function to reverse a string in Python", "expected": "medium"},
+    {"query": "What are the pros and cons of using Redis?", "expected": "medium"},
+    {"query": "How does Python's garbage collection work?", "expected": "medium"},
+    {"query": "Explain the concept of polymorphism in OOP", "expected": "medium"},
+    {"query": "What is the difference between SQL and NoSQL?", "expected": "medium"},
+    {"query": "How do you handle exceptions in Python?", "expected": "medium"},
+    {"query": "Explain the MVC architecture pattern", "expected": "medium"},
+    {"query": "What are environment variables?", "expected": "medium"},
+    {"query": "Describe the difference between threads and processes", "expected": "medium"}
+  ],
+  "complex": [
+    {"query": "Design a distributed cache system for a social media platform that handles 10 million requests per second with low latency and high availability", "expected": "complex"},
+    {"query": "Explain how transformer attention mechanisms work, including multi-head attention, and compare them to RNN-based sequence models in terms of parallelization and long-range dependencies", "expected": "complex"},
+    {"query": "Design a URL shortening service like bit.ly that can handle 100M daily users. Include database schema, API design, and scaling considerations", "expected": "complex"},
+    {"query": "Analyze the trade-offs between eventual consistency and strong consistency in distributed systems, with examples of when to use each", "expected": "complex"},
+    {"query": "Explain how to implement a rate limiter using the token bucket algorithm, including handling distributed environments", "expected": "complex"}
+  ]
+}
