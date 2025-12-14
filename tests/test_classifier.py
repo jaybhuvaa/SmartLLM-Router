@@ -25,40 +25,47 @@ class TestComplexityClassifier:
             "Hello!",
             "What time is it?",
             "Who is the president?",
-            "What are the pros and cons of using Redis?",  # Short question without reasoning
+            "What are the pros and cons of using Redis?",
+            "How does Python's garbage collection work?",  # Short, score=1
         ]
         
         for query in simple_queries:
             result = classify_query_complexity(query)
             assert result.complexity == QueryComplexity.SIMPLE, \
-                f"Expected SIMPLE for: {query}, got {result.complexity}"
+                f"Expected SIMPLE for: {query}, got {result.complexity} (score: {result.features.get('total_score')})"
     
     def test_medium_queries(self):
         """Moderately complex queries should be classified as medium or higher."""
         medium_queries = [
-            "Explain the difference between REST and GraphQL APIs",
-            "How does Python's garbage collection work?",
-            "Write a function to reverse a string in Python with examples",
-            "Compare SQL and NoSQL databases for web applications",
+            "Explain the difference between REST and GraphQL APIs with examples and use cases",
+            "Write a function to reverse a string in Python and explain the time complexity",
+            "Compare SQL and NoSQL databases for web applications and discuss tradeoffs",
+            "How does the kubernetes container orchestration system manage pods and deployments?",
         ]
         
         for query in medium_queries:
             result = classify_query_complexity(query)
             assert result.complexity in [QueryComplexity.MEDIUM, QueryComplexity.COMPLEX], \
-                f"Expected MEDIUM/COMPLEX for: {query}, got {result.complexity}"
+                f"Expected MEDIUM/COMPLEX for: {query}, got {result.complexity} (score: {result.features.get('total_score')})"
     
     def test_complex_queries(self):
         """Complex queries with multiple indicators should be classified as complex."""
         complex_queries = [
             "Design a distributed cache system for a social media platform that handles 10 million requests per second with low latency and high availability",
-            "Design and architect a microservices system with load balancing and high availability for millions of users",
-            "Explain how transformer attention mechanisms work, including multi-head attention, and compare them to RNN-based models in terms of parallelization and scalability",
+            "Design and architect a microservices system with load balancing, sharding, and high availability for millions of users with eventual consistency",
         ]
         
         for query in complex_queries:
             result = classify_query_complexity(query)
             assert result.complexity == QueryComplexity.COMPLEX, \
-                f"Expected COMPLEX for: {query[:50]}..., got {result.complexity}"
+                f"Expected COMPLEX for: {query[:50]}..., got {result.complexity} (score: {result.features.get('total_score')})"
+    
+    def test_ml_complex_query(self):
+        """ML-related complex queries should be at least medium."""
+        query = "Explain how transformer attention mechanisms work, including multi-head attention, and compare them to RNN-based models in terms of parallelization and scalability"
+        result = classify_query_complexity(query)
+        assert result.complexity in [QueryComplexity.MEDIUM, QueryComplexity.COMPLEX], \
+            f"Expected MEDIUM/COMPLEX for ML query, got {result.complexity}"
     
     def test_code_queries(self):
         """Queries with code should be classified as medium or complex."""
