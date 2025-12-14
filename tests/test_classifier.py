@@ -40,7 +40,7 @@ class TestComplexityClassifier:
             "Explain the difference between REST and GraphQL APIs with examples and use cases",
             "Write a function to reverse a string in Python and explain the time complexity",
             "Compare SQL and NoSQL databases for web applications and discuss tradeoffs",
-            "How does the kubernetes container orchestration system manage pods and deployments?",
+            "Design a simple REST API for a todo application with CRUD operations",
         ]
         
         for query in medium_queries:
