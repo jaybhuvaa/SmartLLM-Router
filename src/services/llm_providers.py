@@ -192,7 +192,7 @@ class OllamaProvider(BaseLLMProvider):
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
-        max_tokens: int = 2048,
+        max_tokens: int = 1024,
         temperature: float = 0.7,
     ) -> LLMResponse:
         start_time = time.time()
@@ -217,7 +217,7 @@ class OllamaProvider(BaseLLMProvider):
                             "temperature": temperature,
                         },
                     },
-                    timeout=120.0,
+                    timeout=300.0,  # 5 minutes timeout for slow machines
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -226,30 +226,38 @@ class OllamaProvider(BaseLLMProvider):
                 input_tokens = data.get("prompt_eval_count", len(prompt.split()))
                 output_tokens = data.get("eval_count", len(content.split()))
                 
-            except Exception:
-                # Fallback to generate endpoint
-                full_prompt = prompt
-                if system_prompt:
-                    full_prompt = f"{system_prompt}\n\n{prompt}"
-                
-                response = await client.post(
-                    f"{self.base_url}/api/generate",
-                    json={
-                        "model": self.model,
-                        "prompt": full_prompt,
-                        "stream": False,
-                        "options": {
-                            "num_predict": max_tokens,
-                            "temperature": temperature,
+            except httpx.TimeoutException:
+                raise Exception(f"Ollama timeout - model '{self.model}' took too long to respond. Try a shorter query or simpler model.")
+            except httpx.HTTPStatusError as e:
+                raise Exception(f"Ollama HTTP error: {e.response.status_code} - {e.response.text}")
+            except Exception as e:
+                # Try fallback to generate endpoint
+                try:
+                    full_prompt = prompt
+                    if system_prompt:
+                        full_prompt = f"{system_prompt}\n\n{prompt}"
+                    
+                    response = await client.post(
+                        f"{self.base_url}/api/generate",
+                        json={
+                            "model": self.model,
+                            "prompt": full_prompt,
+                            "stream": False,
+                            "options": {
+                                "num_predict": max_tokens,
+                                "temperature": temperature,
+                            },
                         },
-                    },
-                    timeout=120.0,
-                )
-                response.raise_for_status()
-                data = response.json()
-                
-                content = data.get("response", "")
-                input_tokens = data.get("prompt_eval_count", len(prompt.split()))
+                        timeout=300.0,
+                    )
+                    response.raise_for_status()
+                    data = response.json()
+                    
+                    content = data.get("response", "")
+                    input_tokens = data.get("prompt_eval_count", len(prompt.split()))
+                    output_tokens = data.get("eval_count", len(content.split()))
+                except Exception as fallback_error:
+                    raise Exception(f"Ollama error with model '{self.model}': {str(fallback_error)}")
                 output_tokens = data.get("eval_count", len(content.split()))
         
         latency_ms = int((time.time() - start_time) * 1000)

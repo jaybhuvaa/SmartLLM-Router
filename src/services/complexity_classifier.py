@@ -29,11 +29,21 @@ TECHNICAL_TERMS: Set[str] = {
     # System Design
     "scalability", "load balancer", "sharding", "replication", "consistency",
     "availability", "partition tolerance", "cap theorem", "distributed",
-    "consensus", "raft", "paxos", "eventual consistency",
+    "consensus", "raft", "paxos", "eventual consistency", "latency",
+    "throughput", "fault tolerance", "failover", "redundancy",
     
     # Security
     "encryption", "authentication", "authorization", "oauth", "jwt",
     "ssl", "tls", "vulnerability", "injection", "xss", "csrf",
+}
+
+# System design keywords - these are STRONG indicators of complex queries
+SYSTEM_DESIGN_TERMS: Set[str] = {
+    "design", "architect", "scale", "million", "billion", "distributed",
+    "high availability", "fault tolerant", "load balance", "microservice",
+    "tradeoff", "trade-off", "system design", "architecture",
+    "requests per second", "rps", "qps", "queries per second",
+    "database schema", "api design", "caching strategy", "message queue",
 }
 
 # Reasoning indicators that suggest complex analysis
@@ -52,6 +62,8 @@ REASONING_PATTERNS = [
     r'\bdebug\b',
     r'\btroubleshoot\b',
     r'\bwhat\s+(?:are|is)\s+the\s+(?:best|optimal|most\s+efficient)\b',
+    r'\btradeoff\b',
+    r'\btrade-off\b',
 ]
 
 # Multi-step task indicators
@@ -87,6 +99,16 @@ def count_technical_terms(query: str) -> int:
     query_lower = query.lower()
     count = 0
     for term in TECHNICAL_TERMS:
+        if term in query_lower:
+            count += 1
+    return count
+
+
+def count_system_design_terms(query: str) -> int:
+    """Count system design specific terms - strong complexity indicator."""
+    query_lower = query.lower()
+    count = 0
+    for term in SYSTEM_DESIGN_TERMS:
         if term in query_lower:
             count += 1
     return count
@@ -132,6 +154,7 @@ def classify_query_complexity(query: str) -> ClassificationResult:
         "has_code": has_pattern_match(query, CODE_PATTERNS),
         "reasoning_indicators": count_pattern_matches(query, REASONING_PATTERNS),
         "technical_term_count": count_technical_terms(query),
+        "system_design_terms": count_system_design_terms(query),
         "is_multi_step": has_pattern_match(query, MULTI_STEP_PATTERNS),
         "has_question_mark": "?" in query,
         "sentence_count": len(re.findall(r'[.!?]+', query)) + 1,
@@ -141,9 +164,9 @@ def classify_query_complexity(query: str) -> ClassificationResult:
     score = 0
     
     # Length-based scoring
-    if word_count > 150:
+    if word_count > 100:
         score += 2
-    elif word_count > 50:
+    elif word_count > 30:
         score += 1
     
     # Code presence is a strong signal
@@ -162,19 +185,28 @@ def classify_query_complexity(query: str) -> ClassificationResult:
     elif features["technical_term_count"] >= 2:
         score += 1
     
+    # SYSTEM DESIGN - Strong indicator for complex (NEW!)
+    if features["system_design_terms"] >= 3:
+        score += 3  # Big boost for system design questions
+    elif features["system_design_terms"] >= 1:
+        score += 2
+    
     # Multi-step tasks
     if features["is_multi_step"]:
         score += 1
     
     # Multiple sentences often indicate complex requests
-    if features["sentence_count"] >= 4:
+    if features["sentence_count"] >= 3:
         score += 1
     
-    # Determine complexity level
-    if score >= 5:
+    # Store score in features for debugging
+    features["total_score"] = score
+    
+    # Determine complexity level (ADJUSTED THRESHOLDS)
+    if score >= 4:  # Lowered from 5 to 4
         complexity = QueryComplexity.COMPLEX
         recommended_model = settings.default_complex_model
-        confidence = min(0.95, 0.7 + (score - 5) * 0.05)
+        confidence = min(0.95, 0.7 + (score - 4) * 0.05)
     elif score >= 2:
         complexity = QueryComplexity.MEDIUM
         recommended_model = settings.default_medium_model
