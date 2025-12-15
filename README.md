@@ -355,33 +355,7 @@ Score 4+   → COMPLEX → Llama 3.2 (quality priority)
 
 **Result: 100% cost savings using local models!**
 
-## 📈 Resume Bullet Points
 
-```
-SmartLLM Router — Intelligent LLM Cost Optimization Middleware
-
-• Engineered production-grade FastAPI middleware implementing intelligent 
-  query routing across multiple LLM models based on complexity analysis, 
-  achieving 100% cost reduction using local Ollama models vs cloud APIs
-
-• Designed query complexity classifier analyzing 40+ technical terms, 
-  reasoning patterns, and system design keywords with configurable 
-  scoring thresholds for accurate model selection
-
-• Implemented semantic caching using sentence-transformers embeddings 
-  with cosine similarity matching, achieving 40-50% cache hit rate 
-  and sub-second response times for cached queries
-
-• Built comprehensive CI/CD pipeline with GitHub Actions running 40 
-  automated tests across Python 3.11/3.12, Docker builds, and code 
-  coverage reporting
-
-• Optimized for resource-constrained environments (8GB RAM) with 
-  graceful timeout handling and model selection based on hardware limits
-
-• Tech: Python, FastAPI, Ollama, Pydantic, Docker, pytest, GitHub Actions,
-  sentence-transformers
-```
 
 ## 🔮 Future Enhancements
 
